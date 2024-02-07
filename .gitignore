@@ -165,3 +165,6 @@ etl_workspace
 
 # test notbook
 test_scripts.ipynb
+
+# sqlite db
+*.db

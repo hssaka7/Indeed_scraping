@@ -55,6 +55,13 @@ class Worker(ABC):
         with open (file_path, 'w') as f:
             f.write(content)
 
+    def get_scraped_file_paths(self, project_path):
+        file_path = f"{self._worker_config['workspace_location']}/{project_path}"
+        logging.info(f"Reading file path: {file_path}")
+
+        return [f"{file_path}/{_f}" for _f in os.listdir(file_path)]
+        
+
     @abstractmethod
     def run():
         pass

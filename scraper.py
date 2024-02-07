@@ -30,6 +30,7 @@ class IndeedScraper(Worker):
             for card in cards:
                 job_title = card.find_element(By.CLASS_NAME,'jobTitle')
                 job_title_text = job_title.text
+
                 job_id = job_title.find_element(By.TAG_NAME, 'a').get_attribute('data-jk')
                 
                 location_row = card.find_element(By.CLASS_NAME,'company_location').text
@@ -41,7 +42,7 @@ class IndeedScraper(Worker):
                    company_name = titles[0]
                    if len(titles) >= 3:
                        try:
-                           rating = int(titles[1])
+                           rating = titles[1] if titles[1].replace('.','',1).isdigit() else None
                            job_location = "#".join(titles[2:])
                        except:
                            job_location = "#".join(titles[1:])
@@ -108,10 +109,10 @@ class IndeedScraper(Worker):
 
 if __name__ == "__main__":
     extract_config = [
-        {'name': 'indeed_exrtract', 'job_title':'Python Developer', 'location':'Fort Worth, TX'},
-        {'name': 'indeed_exrtract', 'job_title':'Python Developer', 'location':'Albuquerque, NM'},
-        # {'name': 'indeed_exrtract', 'job_title':'Python Developer', 'location':'Chicago, IL'},
-        # {'name': 'indeed_exrtract', 'job_title':'Python Developer', 'location':'Miami, FL'},
+        {'name': 'indeed_extract', 'job_title':'Python Developer', 'location':'Fort Worth, TX'},
+        {'name': 'indeed_extract', 'job_title':'Python Developer', 'location':'Albuquerque, NM'},
+        # {'name': 'indeed_extract', 'job_title':'Python Developer', 'location':'Chicago, IL'},
+        # {'name': 'indeed_extract', 'job_title':'Python Developer', 'location':'Miami, FL'},
 
 
     ]
