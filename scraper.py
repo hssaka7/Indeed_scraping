@@ -31,24 +31,52 @@ class IndeedScraper(Worker):
                 job_title = card.find_element(By.CLASS_NAME,'jobTitle')
                 job_title_text = job_title.text
                 job_id = job_title.find_element(By.TAG_NAME, 'a').get_attribute('data-jk')
-                location = card.find_element(By.CLASS_NAME,'company_location').text
+                
+                location_row = card.find_element(By.CLASS_NAME,'company_location').text
+               
+               # Extract company name, rating, and other infor from location
+                company_name, job_location, rating = None, None, None
+                if location_row:
+                   titles = location_row.split("\n")
+                   company_name = titles[0]
+                   if len(titles) >= 3:
+                       try:
+                           rating = int(titles[1])
+                           job_location = "#".join(titles[2:])
+                       except:
+                           job_location = "#".join(titles[1:])
+                   
+                   elif len(titles) == 2:
+                       job_location = titles[1]
+
+
                 job_description = card.find_element(By.CLASS_NAME,'underShelfFooter').text
                 
                 try:
                     pay,*_metadata = card.find_element(By.CLASS_NAME,'heading6').text.split('\n')
+                    job_type = None
+                    if _metadata:
+                        if len(_metadata) >= 1: 
+                            job_type = _metadata[0]
+
+                    # TODO extract, job_type from metadata
+                    
                 except Exception as e:
                     pay = 'NA'
                     _metadata = []
             
                 
                 jobs.append({
+                    'company_name': company_name,
                     'job_title':job_title_text,
-                    'location': location,
+                    'location': job_location,
+                    'job_type': job_type,
                     'description': job_description,
-                    'pay rate': pay,
+                    'pay_rate': pay,
                     'metadata': _metadata,
                     'job_id':job_id,
                     'job_url': f"https://www.indeed.com/viewjob?jk={job_id}",
+                    'rating': rating,
                     
                 })
 
