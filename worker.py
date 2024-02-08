@@ -34,7 +34,7 @@ class Worker(ABC):
     
         # Generate unique worker_id 
         today = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
-        self.worker_id = kwargs.get('worker_id', int(today))
+        self.worker_id = str(kwargs.get('worker_id', int(today)))
         
         self.config = kwargs
         
@@ -58,8 +58,9 @@ class Worker(ABC):
         with open (file_path, 'w') as f:
             f.write(content)
 
-    def get_scraped_file_paths(self, project_path):
-        file_path = f"{self._worker_config['workspace_location']}/{project_path}"
+    def get_input_files(self):
+    
+        file_path = f"{self._worker_config['workspace_location']}/{self.name}/{self.worker_id}"
         logging.info(f"Reading file path: {file_path}")
         return [f"{file_path}/{_f}" for _f in os.listdir(file_path)]
     
@@ -74,10 +75,17 @@ class Worker(ABC):
         conn.execute(query)
         conn.commit()
 
-    def add_results(self):
-        
-        pass
-        
+    def add_results(self,df):
+        conn = sqlite3.connect(self._worker_config['database'])
+        logging.info(f"Adding to result table ")
+        try:
+            r = df.to_sql('result',conn)
+            print(r)
+            conn.commit()
+        except Exception as e:
+            print(e)
+
+
 
     @abstractmethod
     def run():
