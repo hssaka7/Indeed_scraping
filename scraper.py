@@ -93,12 +93,14 @@ class IndeedScraper(Worker):
 
     def run(self):
         logging.info("Running Indeed scraper")
+        self.insert_worker_table(status= 'extracting')
         job_title = self.config['job_title']
         location = self.config['location']
         jobs = self.get_jobboards(job_title=job_title, location=location)
         df = pd.DataFrame(jobs)
         # TODO: add date and time to the file name
-        self.save_result(file_name=f"{job_title}_{location}_extract.csv",content=df.to_csv())
+        self.save_result(file_name=f"{job_title}_{location}_extract.csv",content=df.to_csv(index=False))
+        self.insert_worker_table(status= 'extracted')
         
         return (self.name,self.worker_id, )
 

@@ -2,7 +2,9 @@
 import datetime
 import logging 
 import os
-import uuid
+import sqlite3
+
+from db_init import FEED_MAPPING
 
 from abc import ABC, abstractmethod
 
@@ -59,8 +61,22 @@ class Worker(ABC):
     def get_scraped_file_paths(self, project_path):
         file_path = f"{self._worker_config['workspace_location']}/{project_path}"
         logging.info(f"Reading file path: {file_path}")
-
         return [f"{file_path}/{_f}" for _f in os.listdir(file_path)]
+    
+    def insert_worker_table(self,status):
+        conn = sqlite3.connect(self._worker_config['database'])
+        feed_id = FEED_MAPPING[self.name]['id']
+        query = f"""
+        REPLACE INTO WORKER (ID, FEED_ID, STATUS)
+        VALUES({self.worker_id},{feed_id}, '{status}');
+        """
+        print(query)
+        conn.execute(query)
+        conn.commit()
+
+    def add_results(self):
+        
+        pass
         
 
     @abstractmethod
