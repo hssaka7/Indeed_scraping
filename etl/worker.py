@@ -33,7 +33,7 @@ class Worker(ABC):
         self.name = kwargs['name']
     
         # Generate unique worker_id 
-        today = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
+        today = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
         self.worker_id = str(kwargs.get('worker_id', today))
         
         self.config = kwargs
@@ -71,8 +71,8 @@ class Worker(ABC):
             INSERT or REPLACE INTO WORKER (ID, FEED_ID, STATUS)
             VALUES('{self.worker_id}','{feed_id}', '{status}');
             """
-            print(query)
             conn.execute(query)
+            logging.info(f"updated status: {status}")
         
 
     def add_results(self,rows):
@@ -86,9 +86,6 @@ class Worker(ABC):
             except Exception as e:
                 logging.error(e)
                
-            
-
-
     @abstractmethod
     def run(slef):
         pass

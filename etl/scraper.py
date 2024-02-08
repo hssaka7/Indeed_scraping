@@ -92,7 +92,7 @@ class IndeedScraper(Worker):
         return jobs
 
     def run(self):
-        logging.info("Running Indeed scraper")
+        logging.info(f"Running Indeed scraper {self.worker_id}...")
         self.insert_worker_table(status= 'extracting')
         job_title = self.config['job_title']
         location = self.config['location']
@@ -102,27 +102,9 @@ class IndeedScraper(Worker):
         self.save_result(file_name=f"{job_title}_{location}_extract.csv",content=df.to_csv(index=False))
         self.insert_worker_table(status= 'extracted')
         
+        logging.info(f"Finishing Indeed scraper {self.worker_id}...")
         return (self.name,self.worker_id, )
 
     def test(self):
         logging.info("Test successfull")
         return True
-
-
-if __name__ == "__main__":
-    extract_config = [
-        {'name': 'indeed', 'job_title':'Python Developer', 'location':'Fort Worth, TX'},
-        {'name': 'indeed', 'job_title':'Python Developer', 'location':'Albuquerque, NM'},
-        # {'name': 'indeed', 'job_title':'Python Developer', 'location':'Chicago, IL'},
-        # {'name': 'indeed', 'job_title':'Python Developer', 'location':'Miami, FL'},
-
-
-    ]
-
-    extract_objs = [IndeedScraper(**_config) for _config in extract_config]
-    print([obj.run() for obj in extract_objs])
-
-
-
-
-

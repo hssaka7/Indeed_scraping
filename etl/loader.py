@@ -8,7 +8,7 @@ class IndeedLoader(Worker):
     """This class will read the scraped data and loads it to the db"""
     
     def run(self):
-        logging.info("Running Indeed data loader")
+        logging.info(f"Running Indeed data loader {self.worker_id}")
         
         file_paths = self.get_input_files()
         
@@ -25,14 +25,9 @@ class IndeedLoader(Worker):
               var_name='key_name', value_name='value')
             df_melted['worker_id'] = self.worker_id
             df_melted.dropna(inplace=True)
-            print(df_melted.shape)
             df_melted = df_melted.astype({'job_id':'string', 'key_name': 'string', 'value':'string','worker_id':'string'})
-            print("adding result")
+           
             self.add_results(df_melted.values.tolist())
 
         self.insert_worker_table(status= 'loaded')
-
-
-if __name__ == "__main__":
-    loader  = IndeedLoader(name= 'indeed', worker_id = '20240207190851485951')
-    loader.run()
+        logging.info(f"Finishing Indeed data loader {self.worker_id}...")
