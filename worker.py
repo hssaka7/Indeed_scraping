@@ -4,7 +4,7 @@ import logging
 import os
 import sqlite3
 
-from db_init import FEED_MAPPING
+from constants import FEED_MAPPING
 
 from abc import ABC, abstractmethod
 
@@ -34,7 +34,7 @@ class Worker(ABC):
     
         # Generate unique worker_id 
         today = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
-        self.worker_id = str(kwargs.get('worker_id', int(today)))
+        self.worker_id = str(kwargs.get('worker_id', today))
         
         self.config = kwargs
         
@@ -65,28 +65,30 @@ class Worker(ABC):
         return [f"{file_path}/{_f}" for _f in os.listdir(file_path)]
     
     def insert_worker_table(self,status):
-        conn = sqlite3.connect(self._worker_config['database'])
-        feed_id = FEED_MAPPING[self.name]['id']
-        query = f"""
-        REPLACE INTO WORKER (ID, FEED_ID, STATUS)
-        VALUES({self.worker_id},{feed_id}, '{status}');
-        """
-        print(query)
-        conn.execute(query)
-        conn.commit()
+        with sqlite3.connect(self._worker_config['database']) as conn:
+            feed_id = FEED_MAPPING[self.name]['id']
+            query = f"""
+            INSERT or REPLACE INTO WORKER (ID, FEED_ID, STATUS)
+            VALUES('{self.worker_id}','{feed_id}', '{status}');
+            """
+            print(query)
+            conn.execute(query)
+        
 
-    def add_results(self,df):
-        conn = sqlite3.connect(self._worker_config['database'])
-        logging.info(f"Adding to result table ")
-        try:
-            r = df.to_sql('result',conn)
-            print(r)
-            conn.commit()
-        except Exception as e:
-            print(e)
-
+    def add_results(self,rows):
+        query = "INSERT INTO result(job_id,key_name,value,worker_id) VALUES(?,?,?,?)"
+        with sqlite3.connect(self._worker_config['database']) as conn:
+        
+            logging.info(f"Adding {len(rows)} to result table ")
+            try:
+                r = conn.executemany( "INSERT INTO result(job_id,key_name,value,worker_id) VALUES(?,?,?,?)",rows)
+                logging.info(f"Added {len(rows)} result {r}" )
+            except Exception as e:
+                logging.error(e)
+               
+            
 
 
     @abstractmethod
-    def run():
+    def run(slef):
         pass
