@@ -1,6 +1,8 @@
 
+import datetime
 import logging 
 import os
+import uuid
 
 from abc import ABC, abstractmethod
 
@@ -8,7 +10,7 @@ from abc import ABC, abstractmethod
 WORKER_CONFIG = {
     "workspace_location": "etl_workspace",
     "log": "logs/",
-    "database": "",
+    "database": "scrapers.db",
 
 
 }
@@ -25,30 +27,29 @@ class Worker(ABC):
 
         self._worker_config = WORKER_CONFIG
 
+        # must match the feed name in FEED table
         self.name = kwargs['name']
+    
+        # Generate unique worker_id 
+        today = datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')
+        self.worker_id = kwargs.get('worker_id', int(today))
+        
         self.config = kwargs
         
-        self._setup()
-
-        
+        self.workspace_dir = self._create_workspace()
         
 
     def _create_workspace(self):
-        worker_dir = f"{self._worker_config['workspace_location']}/{self.name}"
+        worker_dir = f"{self._worker_config['workspace_location']}/{self.name}/{self.worker_id}"
+
         if not os.path.exists(worker_dir):
-            logging.info(f"Creating workspace directory : {worker_dir}...")
-            os.mkdir(worker_dir)
+            logging.info(f"Creating {worker_dir}")
+            os.makedirs(worker_dir)
+
         return worker_dir
 
-    def _setup(self):
-        home_dir = f"{self._worker_config['workspace_location']}"
-        if not os.path.exists(home_dir):
-            logging.info(f"Creating home directory : {home_dir}...")
-            os.mkdir(home_dir)
-        
-        self.workspace_dir = self._create_workspace()
-
     def save_result(self, file_name, content):
+       
         file_path = f"{self.workspace_dir}/{file_name}"
         logging.info(f"Saving result to {file_path}")
 

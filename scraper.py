@@ -98,9 +98,9 @@ class IndeedScraper(Worker):
         jobs = self.get_jobboards(job_title=job_title, location=location)
         df = pd.DataFrame(jobs)
         # TODO: add date and time to the file name
-        self.save_result(file_name=f"{job_title}_{location}.csv",content=df.to_csv())
+        self.save_result(file_name=f"{job_title}_{location}_extract.csv",content=df.to_csv())
         
-        return True
+        return (self.name,self.worker_id, )
 
     def test(self):
         logging.info("Test successfull")
@@ -109,10 +109,10 @@ class IndeedScraper(Worker):
 
 if __name__ == "__main__":
     extract_config = [
-        {'name': 'indeed_extract', 'job_title':'Python Developer', 'location':'Fort Worth, TX'},
-        {'name': 'indeed_extract', 'job_title':'Python Developer', 'location':'Albuquerque, NM'},
-        # {'name': 'indeed_extract', 'job_title':'Python Developer', 'location':'Chicago, IL'},
-        # {'name': 'indeed_extract', 'job_title':'Python Developer', 'location':'Miami, FL'},
+        {'name': 'indeed', 'job_title':'Python Developer', 'location':'Fort Worth, TX'},
+        {'name': 'indeed', 'job_title':'Python Developer', 'location':'Albuquerque, NM'},
+        # {'name': 'indeed', 'job_title':'Python Developer', 'location':'Chicago, IL'},
+        # {'name': 'indeed', 'job_title':'Python Developer', 'location':'Miami, FL'},
 
 
     ]

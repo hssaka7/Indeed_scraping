@@ -25,5 +25,5 @@ class IndeedLoader(Worker):
 
 
 if __name__ == "__main__":
-    loader  = IndeedLoader(name= 'load', file_path = "indeed_extract")
+    loader  = IndeedLoader(name= 'indeed', file_path = "indeed_extract")
     loader.run()
