@@ -76,14 +76,14 @@ class Worker(ABC):
         
 
     def add_results(self,rows):
-        query = "INSERT INTO result(job_id,key_name,value,worker_id) VALUES(?,?,?,?)"
+        # TODO update the worker_result table before updating the result table
         with sqlite3.connect(self._worker_config['database']) as conn:
         
             logging.info(f"Adding {len(rows)} to result table ")
             try:
-                r1 = conn.execute("INSERT INTO worker_result()")
-                r = conn.executemany( "INSERT INTO result(job_id,key_name,value,worker_id) VALUES(?,?,?,?)",rows)
-                logging.info(f"Added {len(rows)} result {r}" )
+                r= conn.executemany( "INSERT INTO result(job_id,key_name,value,worker_id) VALUES(?,?,?,?)",rows)
+                
+                logging.info(f"Added {len(rows)}" )
             except Exception as e:
                 logging.error(e)
                

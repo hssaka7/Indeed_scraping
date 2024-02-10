@@ -8,34 +8,35 @@ logging.basicConfig(level=logging.INFO)
 
 drop_feed_table_query = "DROP TABLE IF EXISTS FEED;"
 create_feed_table_query = """
-CREATE TABLE FEED(
-ID INT PRIMARY KEY NOT NULL,
-NAME VARCHAR UNIQUE NOT NULL,
-DESCRIPTION VARCHAR,
-FREQUENCY VARCHAR
-);
+CREATE TABLE "feed" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "name" VARCHAR(20) NOT NULL,
+    "description" VARCHAR(100) NOT NULL,
+    "frequency" VARCHAR(10) NOT NULL
+)
 """
 
 create_worker_table_query = """
-CREATE TABLE IF NOT EXISTS WORKER(
-ID VARCHAR PRIMARY KEY  NOT NULL,
-FEED_ID INT NOT NULL,
-STATUS VARCHAR, 
-CREATED_AT DATETIME,
-CREATED_BY DATETIME
-);
+CREATE TABLE "worker" (
+    "id" VARCHAR(50) NOT NULL  PRIMARY KEY,
+    "status" VARCHAR(20) NOT NULL,
+    "created_by" VARCHAR(20),
+    "created_at" TIMESTAMP,
+    "feed_id" INT NOT NULL REFERENCES "feed" ("id") ON DELETE CASCADE /* The feed under which workers are running  */
+)
 """
-
 
 
 create_result_table_query ="""
-CREATE TABLE  IF NOT EXISTS RESULT(
-JOB_ID VARCHAR NOT NULL,
-WORKER_ID VARCHAR NOT NULL,
-KEY_NAME VARCHAR NOT NULL,
-VALUE VARCHAR NOR NULL
-);
+CREATE TABLE "result" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "job_id" VARCHAR(50) NOT NULL,
+    "key_name" VARCHAR(50) NOT NULL,
+    "value" VARCHAR(50) NOT NULL,
+    "worker_id" VARCHAR(50) NOT NULL REFERENCES "worker" ("id") ON DELETE CASCADE /* The results saved by the workers */
+)
 """
+
 insert_val = ','.join([f"({val['id']},'{name}','{val['description']}','{val['frequency']}')" for name,val in FEED_MAPPING.items() ])
 
 insert_feeds_query =f"""
