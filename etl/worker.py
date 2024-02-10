@@ -81,6 +81,7 @@ class Worker(ABC):
         
             logging.info(f"Adding {len(rows)} to result table ")
             try:
+                r1 = conn.execute("INSERT INTO worker_result()")
                 r = conn.executemany( "INSERT INTO result(job_id,key_name,value,worker_id) VALUES(?,?,?,?)",rows)
                 logging.info(f"Added {len(rows)} result {r}" )
             except Exception as e:

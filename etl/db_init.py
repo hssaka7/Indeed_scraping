@@ -26,6 +26,8 @@ CREATED_BY DATETIME
 );
 """
 
+
+
 create_result_table_query ="""
 CREATE TABLE  IF NOT EXISTS RESULT(
 JOB_ID VARCHAR NOT NULL,
