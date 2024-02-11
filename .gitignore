@@ -168,3 +168,4 @@ test_scripts.ipynb
 
 # sqlite db
 *.db
+.DS_Store
