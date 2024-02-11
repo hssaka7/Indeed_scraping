@@ -4,7 +4,7 @@ from typing import List
 
 import uvicorn
 
-from schema import Feed,Result_Pydantic_List, Feed_Pydantic_List, Feed_Pydantic
+from schema import Feed,Worker, Result, Feed_Pydantic, Worker_Pydantic,Result_Pydantic
 
 app = FastAPI()
 
@@ -15,8 +15,27 @@ async def root():
 @app.get("/feeds", response_model=List[Feed_Pydantic])
 async def get_feeds():
     all_feed = Feed.all()
-    print(all_feed)
-    return await Feed_Pydantic.from_queryset(Feed.all())
+    return await Feed_Pydantic.from_queryset(all_feed)
+
+@app.get("/feeds/{id}", response_model=Feed_Pydantic)
+async def get_feed(id: int):
+    f_id = Feed.get(id=id)
+    return await Feed_Pydantic.from_queryset_single(f_id)
+
+@app.get("/workers", response_model=List[Worker_Pydantic])
+async def get_workers():
+    all_worker = Worker.all()
+    return await Worker_Pydantic.from_queryset(all_worker)
+
+@app.get("/workers/{id}", response_model=Worker_Pydantic)
+async def get_worker(id: str):
+    w_id = Worker.get(id=id)
+    return await Worker_Pydantic.from_queryset_single(w_id)
+
+@app.get("/results/{worker_id}")
+async def get_results(worker_id:str):
+    all_result = Result.all()
+    return await Result_Pydantic.from_queryset(all_result)
 
 register_tortoise(
     app,
@@ -28,4 +47,3 @@ register_tortoise(
 
 if __name__ == "__main__":
     uvicorn.run('routes:app', host='127.0.0.1', port=8000, reload=True)
-    print("API coming soon http://127.0.0.1:8000/")

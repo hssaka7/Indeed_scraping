@@ -14,8 +14,8 @@ class Feed(Model):
 class Worker(Model):
     id = fields.CharField(pk=True,max_length=50, index =True)
     status = fields.CharField(max_length=20)
-    created_by = fields.CharField(max_length=20)
-    created_at = fields.DatetimeField()
+    # created_by = fields.CharField(max_length=20)
+    # created_at = fields.DatetimeField()
     
     feed: fields.ForeignKeyRelation["Feed"]= fields.ForeignKeyField(
         "models.Feed", related_name="workers", description="The feed under which workers are running "
@@ -27,19 +27,21 @@ class Worker(Model):
     # )
 
 
-    
-    
 class Result(Model):
     id = fields.IntField(pk=True,index =True)
     job_id = fields.CharField(max_length=50)
     key_name = fields.CharField(max_length=50)
-    value = fields.CharField(max_length=50)
+    value = fields.CharField(max_length=200)
     worker: fields.ForeignKeyRelation["Worker"] = fields.ForeignKeyField(
         "models.Worker", related_name="results", description="The results saved by the workers"
     )
 
 Feed_Pydantic = pydantic_model_creator(Feed)
+Worker_Pydantic = pydantic_model_creator(Worker)
+Result_Pydantic = pydantic_model_creator(Result)
+
 Feed_Pydantic_List= pydantic_queryset_creator(Feed)
+Worker_Pydantic_List = pydantic_queryset_creator(Worker)
 Result_Pydantic_List = pydantic_queryset_creator(Result)
 
 async def connectToDatabase():
