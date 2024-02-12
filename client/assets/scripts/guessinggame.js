@@ -2,10 +2,7 @@
 let user_guess;
 const total_attempt = 10;
 let user_attempt = 1
-
-
 let game_number = Math.floor(Math.random() * 100 ) + 1;
-console.log("the game number is " + game_number);
 
 const user_submit_button = document.querySelector('.userSubmit');
 const user_input = document.querySelector('.userGuess');
@@ -31,6 +28,7 @@ function resetGame(){
 
 function setDefaultValues(){
 
+  game_number = Math.floor(Math.random() * 100 ) + 1;
   user_guess = 0;
   user_attempt = 1;
 
@@ -39,11 +37,11 @@ function setDefaultValues(){
   user_submit_button.disabled = false;
   
   guessHistory.textContent = "";
-  
   gameStatus.textContent=""
 
   resetButton.parentNode.removeChild(resetButton)
   user_input.focus();
+
 
 }
 
