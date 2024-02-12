@@ -1,11 +1,11 @@
 
 // grid and matrix variable
-let row_size =60;
+let row_size =75;
 let col_size = 150;
 
 const color_map = {
-    0: 'white',
-    1: 'green',
+    0: 'grey',
+    1: 'yellow',
     
 }
 // 2D Matrix representation of the board 
@@ -35,7 +35,7 @@ function track_user_click(){
     // update neighbour
 
     // this.textContent = matrix[row_id][col_id]
-    this.style.backgroundColor = (matrix[row_id][col_id] === 1) ? 'green' : 'white'
+    this.style.backgroundColor = color_map[matrix[row_id][col_id]]
 }
 
 function setup_grids(rows = row_size, cols = col_size){
@@ -196,7 +196,7 @@ function start_game(){
             refill_matrix('nextgeneration')
             calculate_neighbour_matrix()
     
-        }, Math.round(1000/10))
+        }, Math.round(1000/30))
     }
 
 }
