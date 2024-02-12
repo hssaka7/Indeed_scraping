@@ -1,130 +1,227 @@
 
-let row_size = 25;
-let col_size = 40;
-let grid_size= '5px'
-let matrix = [];
+// grid and matrix variable
+let row_size =60;
+let col_size = 150;
+
+const color_map = {
+    0: 'white',
+    1: 'green',
+    
+}
+// 2D Matrix representation of the board 
+let matrix = []; 
+let neighbour_matrix = []
+
+// start game variables
 let is_playing = false;
 let interval_id;
 
+
+
 const start_button = document.querySelector('.start');
+const next_button = document.querySelector('.next');
+
 const reset_button = document.querySelector('.reset');
 const random_button = document.querySelector('.random')
 const game_grid = document.querySelector('.gamegrid');
 
-function create_board(rows=row_size,cols= col_size){
-    console.log("Generating board");
+// tracks if the user clicked on game grid and updates the matrix and grid
+function track_user_click(){
+    cell_idl = this.id.split("-")
+    row_id = Number(cell_idl[0]);
+    col_id = Number(cell_idl[1]);
+    matrix[row_id][col_id] = (matrix[row_id][col_id] === 1) ? 0:1;
+    
+    // update neighbour
+
+    // this.textContent = matrix[row_id][col_id]
+    this.style.backgroundColor = (matrix[row_id][col_id] === 1) ? 'green' : 'white'
+}
+
+function setup_grids(rows = row_size, cols = col_size){
+    
+    
     for (let r = 0; r < rows; r++) {
         
         let row_div = document.createElement('div')
         row_div.className = 'gridrow'
-
-        let row = [];
         for(let c = 0; c < cols; c++ ){
-            col_val = 0;
-            row[c] = col_val;
-              
             let cell = document.createElement('div')
             cell.className = 'cell'
             cell.id = `${r}-${c}`
            
-            cell.textContent = col_val
-            cell.style.backgroundColor = 'white'
+            // cell.textContent = neighbour_matrix[r][c]
+            cell.style.backgroundColor = color_map[0]
+            // adding listerner to each clicks
+            cell.addEventListener('click', track_user_click)
             row_div.appendChild(cell)
 
 
         }
-        //console.log(`Row no: ${r} and value: ${row}`);
-        matrix[r] = row;
-        game_grid.appendChild(row_div)
-        
-
+        game_grid.appendChild(row_div)   
     }
     
-    console.log(matrix);
+
 }
 
+function init_gameoflife(){
+    refill_matrix("reset", false)
+    setup_grids()
+   
+}
 
 function update_board(){
-    console.log("Updating grid...")
+    
     for(let r=0; r<row_size;r ++){
         for (let c=0; c<col_size;c++){
             cell_id =`${r}-${c}`
             let cell = document.getElementById(cell_id);
-            // console.log(`${cell_id}   :  ${matrix[r][c]}`)
-            cell.textContent = matrix[r][c];
-            cell.style.backgroundColor = (matrix[r][c] === 1) ? 'green' : 'white'
+            // cell.textContent = neighbour_matrix[r][c];
+            cell.style.backgroundColor = color_map[matrix[r][c]] 
 
         }
     }
 }
 
-function get_next_gen(){
-    console.log("Getting next gen")
+function refill_matrix(how="reset", update_grids = true){
+    let new_matrix = []
+    
+    for (let r=0; r<row_size; r++){
+        let row=[];
+        for (let c=0; c<col_size; c++){
+            let val = 0 ; 
+            if (how === 'random') {
+                val = Math.round(Math.random());
+            } else if (how === 'nextgeneration') {
+                val = next_generation(r,c)
+
+            }
+            row[c] = val;
+        }
+        new_matrix[r] = row;
+    }
+    matrix = new_matrix;
+    calculate_neighbour_matrix()
+    if (update_grids){
+        update_board()
+    }
+        
+   
+}
+
+function get_neighbour(row,col){
+    let neigh = []
+    if (row > 0 ){
+       neigh.push(matrix[row-1][col])
+    }
+    if (col > 0 ){
+        neigh.push(matrix[row][col-1])
+    }
+
+    if (row > 0 && col > 0 ){
+        neigh.push(matrix[row-1][col-1])
+    }
+
+
+
+    if (row < row_size -1 ){
+        neigh.push(matrix[row+1][col])
+    }
+    if (col < col_size -1 ){
+        neigh.push(matrix[row][col+1])
+    }
+    if (row < row_size -1  && col < col_size -1  ){
+        neigh.push(matrix[row+1][col+1])
+    }
+
+    if (row > 0 && col<col_size -1){
+        neigh.push(matrix[row-1][col+1])
+    }
+    if (row <row_size-1 && col> 0 ){
+        neigh.push(matrix[row+1][col-1])
+    }
+    return neigh
+
+
+}
+
+function calculate_neighbour_matrix(){
+    for (let r=0; r < row_size; r++){
+        let row = [];
+        for(let c=0; c < col_size; c++){
+            neighbor_vals = get_neighbour(r,c)
+            row[c] = neighbor_vals.reduce((acc,v) => acc + v, 0);
+        }
+        neighbour_matrix[r] = row
+    }
+}
+
+function next_generation(row,col){
+    // if cell is alive:
+    //     cell with one or no neighbour dies of soltitude
+    //     cell with four or more neighbour dies of overpopulation
+    //     cell with cell with two or three neighour survives
+
+    // if cell is empty:
+    // cell with three neighbour becomes populates
+    all_neighbour = get_neighbour(row,col)
+    total_neighbour = all_neighbour.reduce((acc,v) => acc + v, 0);
+    
+    val = matrix[row][col]
+    result = 0;
+
+    if(val===0){
+       if (total_neighbour===3){
+           result = 1;
+       }
+    }else{
+        if (total_neighbour <=1 ) {
+            result = 0;
+        } else if(total_neighbour >=4){
+            result = 0;
+        }else{
+            result = 1;
+        }
+
+    }
+    return result
+
+
 }
 
 function start_game(){
     if (is_playing){
-        interval_id = setInterval(get_next_gen, 1000)
+        interval_id = setInterval(()=>{
+           
+            refill_matrix('nextgeneration')
+            calculate_neighbour_matrix()
+    
+        }, Math.round(1000/10))
     }
 
 }
 
 
-function refill_board(how){
-    
-    console.log(`Refelling board : ${how}`)
-    for (let r=0; r<row_size; r++){
-        let row=[];
-        for (let c=0; c<col_size; c++){
-            val = (how==='reset') ? 0 : Math.round(Math.random())
-            row[c] = val;
-        }
-        matrix[r] = row;
-    }
 
-    update_board();
-    console.log(matrix);
-   
-}
 
-function get_user_click(){
-    
-    cell_idl = this.id.split("-")
-    row_id = Number(cell_idl[0]);
-    col_id = Number(cell_idl[1]);
-
-    console.log("got user click in the grid")
-    console.log(this.id)
-    console.log(`${row_id} * ${col_id} : ${matrix[row_id][col_id]}`)
-    
-    matrix[row_id][col_id] = (matrix[row_id][col_id] === 1) ? 0:1;
-    console.log(`Changed to:  ${matrix[row_id][col_id]}`)
-
-    this.textContent = matrix[row_id][col_id]
-    this.style.backgroundColor = (matrix[row_id][col_id] === 1) ? 'green' : 'white'
-
-}
 
 
 
 console.log("running Game of Life")
 
 // This needs to run first before adding listener to each cell. 
-create_board()
+init_gameoflife()
 
 // Adding listener to the button
 start_button.addEventListener('click',()=>{
 
-    console.log(`present isplaying: ${is_playing}`)
-    console.log(`the button text is : ${start_button.textContent}`)
-
+  
     if (is_playing){
-        console.log("is playing is true")
         is_playing = false
         start_button.textContent = 'Start'
         clearInterval(interval_id)
     }else{
-        console.log("is playing is false")
+    
         start_button.textContent = 'Stop'
         is_playing = true
         start_game()
@@ -132,18 +229,24 @@ start_button.addEventListener('click',()=>{
 
 })
 
-reset_button.addEventListener('click',()=>{
-    refill_board('reset')
-})
-random_button.addEventListener('click',()=>{
-    refill_board('random')
+
+next_button.addEventListener('click',()=>{
+    
+    refill_matrix('nextgeneration')
+    
+    
 })
 
-// Adding click listener to each cells
-all_cell = document.querySelectorAll('.cell')
-for (const c of all_cell){
-    c.addEventListener('click', get_user_click);
-}
+reset_button.addEventListener('click',()=>{
+    refill_matrix('reset')
+
+})
+random_button.addEventListener('click',()=>{
+    refill_matrix('random')
+    
+})
+
+
 
 
 

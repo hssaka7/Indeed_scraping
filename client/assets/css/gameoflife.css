@@ -1,0 +1,17 @@
+
+
+.gamegrid {
+    display: grid;
+    
+   
+  }
+
+.cell {
+    width: 10px;
+    height: 10px;
+    text-align: center;
+    border: 1px solid grey;
+    float: left;
+    background-color: white;
+    
+  }
